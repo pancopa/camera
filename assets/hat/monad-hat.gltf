@@ -3,12 +3,6 @@
 		"generator":"Khronos glTF Blender I/O v4.0.44",
 		"version":"2.0"
 	},
-	"extensionsUsed":[
-		"KHR_draco_mesh_compression"
-	],
-	"extensionsRequired":[
-		"KHR_draco_mesh_compression"
-	],
 	"scene":0,
 	"scenes":[
 		{
@@ -21,7 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"hat",
+			"name":"\u5186",
 			"rotation":[
 				0,
 				0.7071068286895752,
@@ -35,6 +29,9 @@
 			"doubleSided":true,
 			"name":"\u30de\u30c6\u30ea\u30a2\u30eb.007",
 			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
@@ -50,25 +47,28 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"extensions":{
-						"KHR_draco_mesh_compression":{
-							"bufferView":0,
-							"attributes":{
-								"POSITION":0,
-								"NORMAL":1,
-								"TEXCOORD_0":2
-							}
-						}
-					},
 					"indices":3,
-					"material":0,
-					"mode":4
+					"material":0
 				}
 			]
 		}
 	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"monad-hat-style",
+			"uri":"monad-hat-style.png"
+		}
+	],
 	"accessors":[
 		{
+			"bufferView":0,
 			"componentType":5126,
 			"count":11426,
 			"max":[
@@ -84,16 +84,19 @@
 			"type":"VEC3"
 		},
 		{
+			"bufferView":1,
 			"componentType":5126,
 			"count":11426,
 			"type":"VEC3"
 		},
 		{
+			"bufferView":2,
 			"componentType":5126,
 			"count":11426,
 			"type":"VEC2"
 		},
 		{
+			"bufferView":3,
 			"componentType":5123,
 			"count":66912,
 			"type":"SCALAR"
@@ -102,14 +105,39 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":58005,
-			"byteOffset":0
+			"byteLength":137112,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":137112,
+			"byteOffset":137112,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":91408,
+			"byteOffset":274224,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":133824,
+			"byteOffset":365632,
+			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":58008,
-			"uri":"scene.bin"
+			"byteLength":499456,
+			"uri":"monad-hat.bin"
 		}
 	]
 }
