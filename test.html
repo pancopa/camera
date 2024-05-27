@@ -52,7 +52,6 @@
   <video class="input_video"></video>
   <button id="switch-camera"><span class="material-symbols-outlined">flip_camera_ios</span></button>
   <script>
-const isFlipped = true;
 let keypointsFace = [];
 let useFrontCamera = true;
 let camera;
@@ -136,7 +135,7 @@ function draw() {
   );
 
   push();
-  if (isFlipped) {
+  if (useFrontCamera) {
     translate(width, 0);
     scale(-1, 1);
   }
@@ -168,7 +167,7 @@ function drawImageAtNose(position, faceWidth, offsetX, offsetY, inputWidth, inpu
   const yOffset = -faceWidth * 0.5; // Adjust the y position to move the image up
   image(
     imagePNG,
-    offsetX + (1 - position.x) * inputWidth,
+    offsetX + (useFrontCamera ? (1 - position.x) : position.x) * inputWidth,
     offsetY + position.y * inputHeight + yOffset,
     imageSize,
     imageSize
