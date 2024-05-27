@@ -29,10 +29,9 @@
     canvas {
       display: block;
     }
-    #switch-camera {
+    #switch-camera, #take-screenshot {
       position: absolute;
       bottom: 10px;
-      right: 10px;
       z-index: 1000;
       display: flex;
       justify-content: center;
@@ -45,12 +44,26 @@
       border-radius: 24px;
       cursor: pointer;
     }
+    #switch-camera {
+      right: 10px;
+    }
+    #take-screenshot {
+      width: 64px;
+      height: 64px;
+      border-radius: 32px;
+      left: calc(50% - 32px);
+    }
   </style>
 </head>
 
 <body>
   <video class="input_video"></video>
   <button id="switch-camera"><span class="material-symbols-outlined">flip_camera_ios</span></button>
+  <button id="take-screenshot"><span class="material-symbols-outlined"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="32" r="32" fill="white" fill-opacity="0.84"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M61.5383 31.9999C61.5383 48.3135 48.3135 61.5383 31.9999 61.5383C15.6862 61.5383 2.46143 48.3135 2.46143 31.9999C2.46143 15.6862 15.6862 2.46143 31.9999 2.46143C48.3135 2.46143 61.5383 15.6862 61.5383 31.9999ZM31.9999 58.2563C46.5009 58.2563 58.2563 46.5009 58.2563 31.9999C58.2563 17.4989 46.5009 5.74348 31.9999 5.74348C17.4989 5.74348 5.74348 17.4989 5.74348 31.9999C5.74348 46.5009 17.4989 58.2563 31.9999 58.2563Z" fill="black" fill-opacity="0.5"/>
+    </svg>
+  </button>
   <script>
 let keypointsFace = [];
 let useFrontCamera = true;
@@ -93,6 +106,10 @@ function setupCamera() {
 document.getElementById('switch-camera').addEventListener('click', () => {
   useFrontCamera = !useFrontCamera;
   setupCamera();
+});
+
+document.getElementById('take-screenshot').addEventListener('click', () => {
+  saveCanvas('screenshot', 'png');
 });
 
 setupCamera();
