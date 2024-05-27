@@ -43,11 +43,14 @@
       bottom: 10px;
       display: flex;
       justify-content: flex-end;
-      padding-right: 1rem;
       width: 100%;
+      padding: 0 1rem;
       z-index: 9999;
     }
-    .switch-button {
+    .switch-button, .capture-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       width: 48px;
       height: 48px;
       font-size: 24px;
@@ -56,8 +59,22 @@
       background-color: rgba(0, 0, 0, 0.84);
       border: none;
       border-radius: 24px;
+      margin-right: 1rem;
       cursor: pointer;
-      padding-top: 4px;
+    }
+    .photo-container {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+    }
+    .photo-container img {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid white;
+      border-radius: 10px;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
@@ -68,15 +85,20 @@
 </head>
 
 <body>
-  <video class="input_video"></video>
+  <video class="input_video" playsinline></video>
   <div class="button-container">
     <button class="switch-button" onclick="switchCamera()"><span class="material-symbols-outlined">flip_camera_ios</span></button>
+    <button class="capture-button" onclick="capturePhoto()"><span class="material-symbols-outlined">camera</span></button>
+  </div>
+  <div class="photo-container" id="photoContainer">
+    <img id="capturedPhoto" src="">
   </div>
   <script>
     const isFlipped = true;
     let keypointsFace = [];
-
     const videoElement = document.getElementsByClassName('input_video')[0];
+    const photoContainer = document.getElementById('photoContainer');
+    const capturedPhoto = document.getElementById('capturedPhoto');
     videoElement.style.display = "none";
 
     function onResults(results) {
@@ -122,13 +144,26 @@
       if (camera) {
         camera.stop();
       }
+      const constraints = {
+        video: {
+          facingMode: facingMode,
+          width: { ideal: windowWidth },
+          height: { ideal: windowHeight }
+        }
+      };
+      navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+        videoElement.srcObject = stream;
+        videoElement.onloadedmetadata = () => {
+          videoElement.play();
+          videoElement.style.display = 'block';
+        };
+      });
       camera = new Camera(videoElement, {
         onFrame: async () => {
           await faceMesh.send({image: videoElement});
         },
         width: windowWidth,
-        height: windowHeight,
-        facingMode: facingMode
+        height: windowHeight
       });
       camera.start();
       videoImage = createGraphics(windowWidth, windowHeight);
@@ -137,6 +172,13 @@
     function switchCamera() {
       currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
       startCamera(currentFacingMode);
+    }
+
+    function capturePhoto() {
+      const photo = videoImage.get();
+      photo.loadPixels();
+      photoContainer.style.display = 'block';
+      capturedPhoto.src = photo.canvas.toDataURL();
     }
 
     function draw() {
