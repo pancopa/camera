@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>MediaPipe 0.8.8 / Facemesh / 写輪眼(ネコ目)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+    #switch-camera {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <video class="input_video"></video>
+  <button id="switch-camera"><span class="material-symbols-outlined">flip_camera_ios</span></button>
+  <script>
+const isFlipped = true;
+let keypointsFace = [];
+let useFrontCamera = true;
+let camera;
+
+const videoElement = document.getElementsByClassName('input_video')[0];
+videoElement.style.display = "none";
+
+function onResults(results) {
+  keypointsFace = results.multiFaceLandmarks;
+}
+
+const faceMesh = new FaceMesh({locateFile: (file) => {
+  return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+}});
+
+faceMesh.setOptions({
+  maxNumFaces: 100,  // Set to track up to 100 faces
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+faceMesh.onResults(onResults);
+
+function setupCamera() {
+  if (camera) {
+    camera.stop();
+  }
+  camera = new Camera(videoElement, {
+    onFrame: async () => {
+      await faceMesh.send({image: videoElement});
+    },
+    width: 1280,
+    height: 720,
+    facingMode: useFrontCamera ? 'user' : 'environment'
+  });
+  camera.start();
+}
+
+document.getElementById('switch-camera').addEventListener('click', () => {
+  useFrontCamera = !useFrontCamera;
+  setupCamera();
+});
+
+setupCamera();
+
+let videoImage;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  videoImage = createGraphics(320, 180);
+}
+
+let imagePNG;
+
+function preload() {
+  imagePNG = loadImage("https://pancopa.github.io/camera/assets/bill/bill.png");
+}
+
+function draw() {
+  clear();
+  background("rgba(100, 100, 255, 0.2)");
+
+  // Calculate aspect ratio and fit video to canvas
+  let canvasAspect = width / height;
+  let videoAspect = videoElement.videoWidth / videoElement.videoHeight;
+  let drawWidth, drawHeight;
+  if (canvasAspect > videoAspect) {
+    drawWidth = width;
+    drawHeight = width / videoAspect;
+  } else {
+    drawWidth = height * videoAspect;
+    drawHeight = height;
+  }
+
+  videoImage.drawingContext.drawImage(
+    videoElement,
+    0,
+    0,
+    videoImage.width,
+    videoImage.height
+  );
+
+  push();
+  if (isFlipped) {
+    translate(width, 0);
+    scale(-1, 1);
+  }
+  let displayX = (width - drawWidth) / 2;
+  let displayY = (height - drawHeight) / 2;
+  image(videoImage, displayX, displayY, drawWidth, drawHeight);
+  pop();
+
+  if (keypointsFace.length > 0) {
+    for (let i = 0; i < keypointsFace.length; i++) {
+      const nosePosition = keypointsFace[i][1];
+      const leftEyePosition = keypointsFace[i][33];
+      const rightEyePosition = keypointsFace[i][263];
+      const faceWidth = dist(
+        leftEyePosition.x * drawWidth,
+        leftEyePosition.y * drawHeight,
+        rightEyePosition.x * drawWidth,
+        rightEyePosition.y * drawHeight
+      );
+      drawImageAtNose(nosePosition, faceWidth, displayX, displayY, drawWidth, drawHeight);
+    }
+  }
+}
+
+function drawImageAtNose(position, faceWidth, offsetX, offsetY, inputWidth, inputHeight) {
+  push();
+  imageMode(CENTER);
+  const imageSize = faceWidth * 3; // Set image size to 3 times the face width
+  const yOffset = -faceWidth * 0.5; // Adjust the y position to move the image up
+  image(
+    imagePNG,
+    offsetX + (1 - position.x) * inputWidth,
+    offsetY + position.y * inputHeight + yOffset,
+    imageSize,
+    imageSize
+  );
+  pop();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+  </script>
+</body>
+</html>
