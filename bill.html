@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>MediaPipe 0.8.8 / Facemesh / 画像表示</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000;
+    }
+    .input_video {
+      display: none;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <video class="input_video"></video>
+  <script>
+const isFlipped = true;
+let keypointsFace = [];
+
+const videoElement = document.getElementsByClassName('input_video')[0];
+videoElement.style.display = "none";
+
+function onResults(results) {
+  keypointsFace = results.multiFaceLandmarks;
+}
+
+const faceMesh = new FaceMesh({locateFile: (file) => {
+  return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+}});
+
+faceMesh.setOptions({
+  maxNumFaces: 10,  // 最大10人の顔を検出
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+faceMesh.onResults(onResults);
+
+let camera;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  videoElement.width = windowWidth;
+  videoElement.height = windowHeight;
+  camera = new Camera(videoElement, {
+    onFrame: async () => {
+      await faceMesh.send({image: videoElement});
+    },
+    width: windowWidth,
+    height: windowHeight
+  });
+  camera.start();
+  videoImage = createGraphics(windowWidth, windowHeight);
+}
+
+let imagePNG;
+
+function preload() {
+  imagePNG = loadImage("https://pancopa.github.io/camera/assets/bill/bill.png");
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  videoElement.width = windowWidth;
+  videoElement.height = windowHeight;
+  camera.stop();
+  camera = new Camera(videoElement, {
+    onFrame: async () => {
+      await faceMesh.send({image: videoElement});
+    },
+    width: windowWidth,
+    height: windowHeight
+  });
+  camera.start();
+  videoImage = createGraphics(windowWidth, windowHeight);
+}
+
+function draw() {
+  clear();
+  background("rgba(100, 100, 255, 0.2)");
+
+  videoImage.drawingContext.drawImage(
+    videoElement,
+    0,
+    0,
+    videoImage.width,
+    videoImage.height
+  );
+
+  push();
+  if (isFlipped) {
+    translate(width, 0);
+    scale(-1, 1);
+  }
+  displayWidth = width;
+  displayHeight = (width * videoImage.height) / videoImage.width;
+  image(videoImage, 0, 0, displayWidth, displayHeight);
+  pop();
+
+  if (keypointsFace.length > 0) {
+    keypointsFace.forEach(faceLandmarks => {
+      const indexNoseTip = {
+        center: faceLandmarks[1],
+      };
+
+      // 左目と右目の距離を測定
+      const leftEye = faceLandmarks[33];
+      const rightEye = faceLandmarks[263];
+      const faceWidth = dist(leftEye.x * displayWidth, leftEye.y * displayHeight, rightEye.x * displayWidth, rightEye.y * displayHeight);
+
+      drawImageOnNose(indexNoseTip, displayWidth, displayHeight, faceWidth);
+    });
+  }
+}
+
+function drawImageOnNose(position, inputWidth, inputHeight, faceWidth) {
+  push();
+  imageMode(CENTER);
+  tint(255, 255);  // 透明度を戻す
+  const scaleFactor = faceWidth * 3.5;  // 顔の幅に基づいて画像のサイズを調整
+  image(
+    imagePNG,
+    (1 - position.center.x) * inputWidth,
+    position.center.y * inputHeight,
+    scaleFactor,
+    scaleFactor
+  );
+  pop();
+}
+
+  </script>
+</body>
+</html>
