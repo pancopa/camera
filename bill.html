@@ -51,7 +51,7 @@ const faceMesh = new FaceMesh({locateFile: (file) => {
 }});
 
 faceMesh.setOptions({
-  maxNumFaces: 10,  // 最大10人の顔を検出
+  maxNumFaces: 100,  // 最大100人の顔を検出
   refineLandmarks: true,
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
