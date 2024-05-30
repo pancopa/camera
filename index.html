@@ -2,23 +2,23 @@
   <head prefix="og: https://ogp.me/ns#">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <link rel=”shortcut icon” href=”favicon.ico”>
-    <link rel=”Apple-touch-icon” href=”appleicon.png”>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="Apple-touch-icon" href="appleicon.png">
     <title>nads camera - Try On Hats and Glasses with Ease!</title>
-    <meta name=”description” content=”Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!”>
-    <meta charset=”utf-8″>
+    <meta name=”description” content="Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!">
+    <meta charset="utf-8">
     <meta property=”og:url” content=”https://pancopa.github.io/camera/”>
     <meta property=”og:type” content=”website”>
-    <meta property=”og:title” content=” nads camera - Try On Hats and Glasses with Ease!”>
-    <meta property=”og:description” content=” Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!”>
-    <meta property=”og:site_name” content=” nads camera - Try On Hats and Glasses with Ease!”>
+    <meta property=”og:title” content="nads camera - Try On Hats and Glasses with Ease!">
+    <meta property=”og:description” content="Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!">
+    <meta property=”og:site_name” content="nads camera - Try On Hats and Glasses with Ease!">
     <meta property=”og:image” content=”https://pancopa.github.io/camera/ogp.png”>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
-        const list = ["hat1", "hat2", "glasses1", "glasses2", "earring"];
-        const visibles = [true, false, true, false, true];
+        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring"];
+        const visibles = [true, false, false, true, false, true];
         const setVisible = (button, entities, visible) => {
           if (visible) {
             button.classList.add("selected");
@@ -74,11 +74,12 @@
   <body>
     <div class="example-container">
       <div class="options-panel">
-	<img id="hat1" src="https://pancopa.github.io/camera/assets/hat/thumbnail.png"/>
-	<img id="hat2" src="https://pancopa.github.io/camera/assets/monadoni/thumbnail.png"/>
-	<img id="glasses1" src="https://pancopa.github.io/camera/assets/glasses/thumbnail.png"/>
-	<img id="glasses2" src="https://pancopa.github.io/camera/assets/glasses2/thumbnail.png"/>
-	<img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
+        <img id="hat1" src="https://pancopa.github.io/camera/assets/hat/thumbnail.png"/>
+        <img id="cap" src="./assets/cap/thumbnail.png"/>
+        <img id="hat2" src="https://pancopa.github.io/camera/assets/monadoni/thumbnail.png"/>
+        <img id="glasses1" src="https://pancopa.github.io/camera/assets/glasses/thumbnail.png"/>
+        <img id="glasses2" src="https://pancopa.github.io/camera/assets/glasses2/thumbnail.png"/>
+        <img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
       </div>
       <a-scene mindar-face embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-assets>
@@ -87,6 +88,7 @@
           <a-asset-item id="glassesModel2" src="https://pancopa.github.io/camera/assets/glasses2/monad-glass.gltf"></a-asset-item>
           <a-asset-item id="hatModel" src="https://pancopa.github.io/camera/assets/hat/monad-hat.gltf"></a-asset-item>
           <a-asset-item id="hatModel2" src="https://pancopa.github.io/camera/assets/monadoni/monadoni.gltf"></a-asset-item>
+          <a-asset-item id="capModel" src="./assets/cap/monad-cap.gltf"></a-asset-item>
           <a-asset-item id="earringModel" src="https://pancopa.github.io/camera/assets/earring/monad-earring.gltf"></a-asset-item>
         </a-assets>
         <a-camera active="false" position="0 0 0"></a-camera>
@@ -96,6 +98,9 @@
         </a-entity>
         <a-entity mindar-face-target="anchorIndex: 10">
 	        <a-gltf-model rotation="0 -90 0" position="0 -0.15 -0.7" scale="5 5 5" src="#hatModel" class="hat1-entity" visible="false"></a-gltf-model>
+        </a-entity>
+        <a-entity mindar-face-target="anchorIndex: 10">
+	        <a-gltf-model rotation="0 -90 0" position="0 -0.1 -0.6" scale="5.5 5.5 5.5" src="#capModel" class="cap-entity" visible="false"></a-gltf-model>
         </a-entity>
         <a-entity mindar-face-target="anchorIndex: 1">
 	        <a-gltf-model rotation="0 -90 0" position="0 -1.5 -0.5" scale="4 4 4" src="#hatModel2" class="hat2-entity" visible="false"></a-gltf-model>
