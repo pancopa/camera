@@ -1,223 +1,57 @@
 <!DOCTYPE html>
-<html lang="ja">
-  <head prefix="og: https://ogp.me/ns#">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex">
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="Apple-touch-icon" href="appleicon.png">
-    <title>nads camera - 簡単に帽子やメガネを試着しよう！</title>
-    <meta name="description" content="nads限定体験！monad ARカメラを使ってリアルタイムで顔に帽子やメガネを配置。お気に入りのアイテムを見つけてコミュニティでシェアしよう！">
-    <meta charset="utf-8">
-    <meta property="og:url" content="https://pancopa.github.io/camera/">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="nads camera - 簡単に帽子やメガネを試着しよう！">
-    <meta property="og:description" content="nads限定体験！monad ARカメラを使ってリアルタイムで顔に帽子やメガネを配置。お気に入りのアイテムを見つけてコミュニティでシェアしよう！">
-    <meta property="og:site_name" content="nads camera - 簡単に帽子やメガネを試着しよう！">
-    <meta property="og:image" content="https://pancopa.github.io/camera/ogp.png">
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Hat Try-On</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MindAR-js/aframe/dist/aframe-mindar.js"></script>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      .example-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
-      .options-panel {
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: 2;
-      }
-      .options-panel img {
-        width: 50px;
-        height: 50px;
-        background-color: #fff;
-        border: solid 4px #cccccc;
-        border-radius: 30px;
-        object-fit: cover;
-        cursor: pointer;
-      }
-      .options-panel img.selected {
-        border-color: #200053;
-      }
-      .ui {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-        z-index: 3;
-      }
-      .ui a {
-        display: inline-block;
-        width: 60px;
-        height: 60px;
-        background-color: #ffffff;
-        line-height: 100%;
-        color: #303030;
-        margin: 10px 3px;
-        border-radius: 50%;
-        position: relative;
-        text-align: center;
-        font-size: 24px;
-      }
-      .ui a:active {
-        color: #ff0000;
-      }
-      .ui a.disabled {
-        pointer-events: none;
-        color: #cccccc;
-      }
-      #snap {
-        display: none;
-      }
-      #snap.visible {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 10;
-      }
+        body { margin: 0; overflow: hidden; }
+        #capture-button { position: absolute; top: 10px; left: 10px; z-index: 1; }
     </style>
-  </head>
-  <body>
-    <div class="example-container">
-      <div class="options-panel">
-        <img id="hat1" src="https://pancopa.github.io/camera/assets/hat/thumbnail.png"/>
-        <img id="cap" src="./assets/cap/thumbnail.png"/>
-        <img id="hat2" src="https://pancopa.github.io/camera/assets/monadoni/thumbnail.png"/>
-        <img id="glasses1" src="https://pancopa.github.io/camera/assets/glasses/thumbnail.png"/>
-        <img id="glasses2" src="https://pancopa.github.io/camera/assets/glasses2/thumbnail.png"/>
-        <img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
-      </div>
-      <a-scene embedded arjs="sourceType: webcam;">
-        <a-assets>
-          <a-asset-item id="headModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/sparkar/headOccluder.glb"></a-asset-item>
-          <a-asset-item id="glassesModel" src="https://pancopa.github.io/camera/assets/glasses/monad-glass.gltf"></a-asset-item>
-          <a-asset-item id="glassesModel2" src="https://pancopa.github.io/camera/assets/glasses2/monad-glass.gltf"></a-asset-item>
-          <a-asset-item id="hatModel" src="https://pancopa.github.io/camera/assets/hat/monad-hat.gltf"></a-asset-item>
-          <a-asset-item id="hatModel2" src="https://pancopa.github.io/camera/assets/monadoni/monadoni.gltf"></a-asset-item>
-          <a-asset-item id="capModel" src="./assets/cap/monad-cap.gltf"></a-asset-item>
-          <a-asset-item id="earringModel" src="https://pancopa.github.io/camera/assets/earring/monad-earring.gltf"></a-asset-item>
-        </a-assets>
+</head>
+<body>
+    <a-scene mindar="autoStart: true; uiLoading: 'no'; uiScanning: 'no'; uiError: 'no'; uiLocalError: 'no';" 
+             embedded 
+             device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0"></a-camera>
-        <a-entity mindar-face-target="anchorIndex: 168">
-          <a-gltf-model mindar-face-occluder position="0 -0.3 0.15" rotation="0 0 0" scale="0.065 0.065 0.065" src="#headModel"></a-gltf-model>
+        <a-entity mindar-face="faceIndex: 0">
+            <a-entity 
+                geometry="primitive: box; width: 1; height: 1; depth: 1" 
+                material="color: red;" 
+                position="0 0.5 0" 
+                scale="0.3 0.3 0.3">
+            </a-entity>
         </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 10">
-          <a-gltf-model rotation="0 -90 0" position="0 -0.15 -0.7" scale="5 5 5" src="#hatModel" class="hat1-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 10">
-          <a-gltf-model rotation="0 -90 0" position="0 -0.1 -0.6" scale="5.5 5.5 5.5" src="#capModel" class="cap-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 1">
-          <a-gltf-model rotation="0 -90 0" position="0 -1.5 -0.5" scale="4 4 4" src="#hatModel2" class="hat2-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 168">
-          <a-gltf-model rotation="0 -90 0" position="0 0 0" scale="7 7 7" src="#glassesModel" class="glasses1-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 168">
-          <a-gltf-model rotation="0 -90 0" position="0 0 0" scale="6.5 6.5 6.5" src="#glassesModel2" class="glasses2-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 127">
-          <a-gltf-model rotation="-0.1 -150 0" position="0 -0.3 -0.3" scale="4 4 4" src="#earringModel" class="earring-entity" visible="false"></a-gltf-model>
-        </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 356">
-          <a-gltf-model rotation="0.1 -30 0" position="0 -0.3 -0.3" scale="4 4 4" src="#earringModel" class="earring-entity" visible="false"></a-gltf-model>
-        </a-entity>
-      </a-scene>
-      <div class="ui">
-        <img id="snap">
-        <a href="#" id="delete-photo" title="Delete Photo" class="disabled"><i class="material-icons">delete</i></a>
-        <a href="" id="take-photo" title="Take Photo"><i class="material-icons">photo_camera</i></a>
-        <a href="#" id="download-photo" download="selfie.png" title="Save Photo" class="disabled" target="_blank"><i class="material-icons">file_download</i></a>
-      </div>
-    </div>
+    </a-scene>
+    <button id="capture-button">Capture</button>
+
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring"];
-        const visibles = [true, false, false, true, false, true];
-        const setVisible = (button, entities, visible) => {
-          if (visible) {
-            button.classList.add("selected");
-          } else {
-            button.classList.remove("selected");
-          }
-          entities.forEach((entity) => {
-            entity.setAttribute("visible", visible);
-          });
-        }
-        list.forEach((item, index) => {
-          const button = document.querySelector("#" + item);
-          const entities = document.querySelectorAll("." + item + "-entity");
-          setVisible(button, entities, visibles[index]);
-          button.addEventListener('click', () => {
-            visibles[index] = !visibles[index];
-            setVisible(button, entities, visibles[index]);
-          });
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const captureButton = document.getElementById('capture-button');
+            const scene = document.querySelector('a-scene');
 
-        // スクリーンショット機能
-        const image = document.querySelector('#snap');
-        const takePhotoBtn = document.querySelector('#take-photo');
-        const deletePhotoBtn = document.querySelector('#delete-photo');
-        const downloadPhotoBtn = document.querySelector('#download-photo');
+            captureButton.addEventListener('click', () => {
+                // A-Frameのシーンからスクリーンショットを取得
+                scene.components.screenshot.capture('perspective');
 
-        takePhotoBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          const video = document.querySelector('video');
-          const snap = takeSnapshot(video);
+                // スクリーンショットが準備できたらコールバック
+                scene.addEventListener('screenshotready', (e) => {
+                    const dataUrl = e.detail;
+                    downloadImage(dataUrl, 'screenshot.png');
+                });
+            });
 
-          image.setAttribute('src', snap);
-          image.classList.add('visible');
-
-          deletePhotoBtn.classList.remove("disabled");
-          downloadPhotoBtn.classList.remove("disabled");
-
-          downloadPhotoBtn.href = snap;
-        });
-
-        deletePhotoBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          image.setAttribute('src', "");
-          image.classList.remove('visible');
-
-          deletePhotoBtn.classList.add("disabled");
-          downloadPhotoBtn.classList.add("disabled");
-        });
-
-        function takeSnapshot(video) {
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          const width = video.videoWidth;
-          const height = video.videoHeight;
-          const scene = document.querySelector("a-scene").components.screenshot.getCanvas("perspective");
-
-          if (width && height) {
-            canvas.width = width;
-            canvas.height = height;
-            context.drawImage(video, 0, 0, width, height);
-
-            if (width > height) {
-              context.drawImage(scene, 0, 0, width, height);
-            } else {
-              const scale = height / width;
-              const scaledWidth = height * scale;
-              const marginLeft = (width - scaledWidth) / 2;
-              context.drawImage(scene, marginLeft, 0, scaledWidth, height);
+            function downloadImage(dataUrl, filename) {
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             }
-
-            return canvas.toDataURL('image/png');
-          }
-        }
-      });
+        });
     </script>
-  </body>
+</body>
 </html>
