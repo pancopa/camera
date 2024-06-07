@@ -5,55 +5,23 @@
     <meta name="robots" content="noindex">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="Apple-touch-icon" href="appleicon.png">
-    <title>nads camera - Try On Hats and Glasses with Ease!</title>
-    <meta name="description" content="Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!">
+    <title>nads camera - 簡単に帽子やメガネを試着しよう！</title>
+    <meta name="description" content="nads限定体験！monad ARカメラを使ってリアルタイムで顔に帽子やメガネを配置。お気に入りのアイテムを見つけてコミュニティでシェアしよう！">
     <meta charset="utf-8">
     <meta property="og:url" content="https://pancopa.github.io/camera/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="nads camera - Try On Hats and Glasses with Ease!">
-    <meta property="og:description" content="Exclusive experience for nads! Use the monad AR Camera to place hats and glasses on your face in real-time. Find your favorite items and share them with the community!">
-    <meta property="og:site_name" content="nads camera - Try On Hats and Glasses with Ease!">
+    <meta property="og:title" content="nads camera - 簡単に帽子やメガネを試着しよう！">
+    <meta property="og:description" content="nads限定体験！monad ARカメラを使ってリアルタイムで顔に帽子やメガネを配置。お気に入りのアイテムを見つけてコミュニティでシェアしよう！">
+    <meta property="og:site_name" content="nads camera - 簡単に帽子やメガネを試着しよう！">
     <meta property="og:image" content="https://pancopa.github.io/camera/ogp.png">
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe-screenshot-component@master/dist/aframe-screenshot-component.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring"];
-        const visibles = [true, false, false, true, false, true];
-        const setVisible = (button, entities, visible) => {
-          if (visible) {
-            button.classList.add("selected");
-          } else {
-            button.classList.remove("selected");
-          }
-          entities.forEach((entity) => {
-            entity.setAttribute("visible", visible);
-          });
-        }
-        list.forEach((item, index) => {
-          const button = document.querySelector("#" + item);
-          const entities = document.querySelectorAll("." + item + "-entity");
-          setVisible(button, entities, visibles[index]);
-          button.addEventListener('click', () => {
-            visibles[index] = !visibles[index];
-            setVisible(button, entities, visibles[index]);
-          });
-        });
-
-        // スクリーンショットを撮るボタンのイベントリスナー
-        document.querySelector("#screenshot-button").addEventListener('click', () => {
-          const scene = document.querySelector('a-scene');
-          scene.components.screenshot.capture('perspective');
-        });
-      });
-    </script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
       body {
         margin: 0;
+        overflow: hidden;
       }
       .example-container {
-        overflow: hidden;
         position: absolute;
         width: 100%;
         height: 100%;
@@ -76,21 +44,46 @@
       .options-panel img.selected {
         border-color: #200053;
       }
-      #screenshot-button {
+      .ui {
         position: fixed;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        padding: 10px 20px;
-        background-color: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
+        display: flex;
+        gap: 10px;
         z-index: 3;
       }
-      #screenshot-button:hover {
-        background-color: #0056b3;
+      .ui a {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        background-color: #ffffff;
+        line-height: 100%;
+        color: #303030;
+        margin: 10px 3px;
+        border-radius: 50%;
+        position: relative;
+        text-align: center;
+        font-size: 24px;
+      }
+      .ui a:active {
+        color: #ff0000;
+      }
+      .ui a.disabled {
+        pointer-events: none;
+        color: #cccccc;
+      }
+      #snap {
+        display: none;
+      }
+      #snap.visible {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
       }
     </style>
   </head>
@@ -104,8 +97,7 @@
         <img id="glasses2" src="https://pancopa.github.io/camera/assets/glasses2/thumbnail.png"/>
         <img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
       </div>
-      <button id="screenshot-button">スクリーンショットを撮る</button>
-      <a-scene mindar-face embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-scene embedded arjs="sourceType: webcam;">
         <a-assets>
           <a-asset-item id="headModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/sparkar/headOccluder.glb"></a-asset-item>
           <a-asset-item id="glassesModel" src="https://pancopa.github.io/camera/assets/glasses/monad-glass.gltf"></a-asset-item>
@@ -115,8 +107,7 @@
           <a-asset-item id="capModel" src="./assets/cap/monad-cap.gltf"></a-asset-item>
           <a-asset-item id="earringModel" src="https://pancopa.github.io/camera/assets/earring/monad-earring.gltf"></a-asset-item>
         </a-assets>
-        <a-camera active="false" position="0 0 0"></a-camera>
-        <!-- head occluder -->
+        <a-camera position="0 0 0"></a-camera>
         <a-entity mindar-face-target="anchorIndex: 168">
           <a-gltf-model mindar-face-occluder position="0 -0.3 0.15" rotation="0 0 0" scale="0.065 0.065 0.065" src="#headModel"></a-gltf-model>
         </a-entity>
@@ -142,6 +133,91 @@
           <a-gltf-model rotation="0.1 -30 0" position="0 -0.3 -0.3" scale="4 4 4" src="#earringModel" class="earring-entity" visible="false"></a-gltf-model>
         </a-entity>
       </a-scene>
+      <div class="ui">
+        <img id="snap">
+        <a href="#" id="delete-photo" title="Delete Photo" class="disabled"><i class="material-icons">delete</i></a>
+        <a href="" id="take-photo" title="Take Photo"><i class="material-icons">photo_camera</i></a>
+        <a href="#" id="download-photo" download="selfie.png" title="Save Photo" class="disabled" target="_blank"><i class="material-icons">file_download</i></a>
+      </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring"];
+        const visibles = [true, false, false, true, false, true];
+        const setVisible = (button, entities, visible) => {
+          if (visible) {
+            button.classList.add("selected");
+          } else {
+            button.classList.remove("selected");
+          }
+          entities.forEach((entity) => {
+            entity.setAttribute("visible", visible);
+          });
+        }
+        list.forEach((item, index) => {
+          const button = document.querySelector("#" + item);
+          const entities = document.querySelectorAll("." + item + "-entity");
+          setVisible(button, entities, visibles[index]);
+          button.addEventListener('click', () => {
+            visibles[index] = !visibles[index];
+            setVisible(button, entities, visibles[index]);
+          });
+        });
+
+        // スクリーンショット機能
+        const image = document.querySelector('#snap');
+        const takePhotoBtn = document.querySelector('#take-photo');
+        const deletePhotoBtn = document.querySelector('#delete-photo');
+        const downloadPhotoBtn = document.querySelector('#download-photo');
+
+        takePhotoBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          const video = document.querySelector('video');
+          const snap = takeSnapshot(video);
+
+          image.setAttribute('src', snap);
+          image.classList.add('visible');
+
+          deletePhotoBtn.classList.remove("disabled");
+          downloadPhotoBtn.classList.remove("disabled");
+
+          downloadPhotoBtn.href = snap;
+        });
+
+        deletePhotoBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          image.setAttribute('src', "");
+          image.classList.remove('visible');
+
+          deletePhotoBtn.classList.add("disabled");
+          downloadPhotoBtn.classList.add("disabled");
+        });
+
+        function takeSnapshot(video) {
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          const width = video.videoWidth;
+          const height = video.videoHeight;
+          const scene = document.querySelector("a-scene").components.screenshot.getCanvas("perspective");
+
+          if (width && height) {
+            canvas.width = width;
+            canvas.height = height;
+            context.drawImage(video, 0, 0, width, height);
+
+            if (width > height) {
+              context.drawImage(scene, 0, 0, width, height);
+            } else {
+              const scale = height / width;
+              const scaledWidth = height * scale;
+              const marginLeft = (width - scaledWidth) / 2;
+              context.drawImage(scene, marginLeft, 0, scaledWidth, height);
+            }
+
+            return canvas.toDataURL('image/png');
+          }
+        }
+      });
+    </script>
   </body>
 </html>
