@@ -18,7 +18,7 @@
     <script>
       document.addEventListener("DOMContentLoaded", function() {
         const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring", "nini"];
-        const visibles = [true, false, false, true, false, true, false];
+        const visibles = [true, false, false, true, false, true, true];
         const setVisible = (button, entities, visible) => {
           if (visible) {
             button.classList.add("selected");
@@ -119,8 +119,8 @@
         <a-entity mindar-face-target="anchorIndex: 356">
 	        <a-gltf-model rotation="0.1 -30 0" position="0 -0.3 -0.3" scale="4 4 4" src="#earringModel" class="earring-entity" visible="false"></a-gltf-model>
         </a-entity>
-        <a-entity mindar-face-target="anchorIndex: 0">
-	        <a-gltf-model rotation="0 -90 0" position="0 0 0" scale="10 10 10" src="#niniModel" class="nini-entity" visible="false"></a-gltf-model>
+        <a-entity mindar-face-target="anchorIndex: 200">
+	        <a-gltf-model rotation="0 -180 0" position="0 -0.2 0.1" scale="1.2 1.2 1.2" src="#niniModel" class="nini-entity" visible="false"></a-gltf-model>
         </a-entity>
       </a-scene>
     </div>
