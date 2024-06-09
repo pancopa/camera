@@ -15,10 +15,11 @@
     <meta property=”og:image” content=”https://pancopa.github.io/camera/ogp.png”>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
-        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring"];
-        const visibles = [true, false, false, true, false, true];
+        const list = ["hat1", "hat2", "cap", "glasses1", "glasses2", "earring", "nini"];
+        const visibles = [true, false, false, true, false, true, true];
         const setVisible = (button, entities, visible) => {
           if (visible) {
             button.classList.add("selected");
@@ -75,11 +76,12 @@
     <div class="example-container">
       <div class="options-panel">
         <img id="hat1" src="https://pancopa.github.io/camera/assets/hat/thumbnail.png"/>
-        <img id="cap" src="./assets/cap/thumbnail.png"/>
+        <img id="cap" src="https://pancopa.github.io/camera/assets/cap/thumbnail.png"/>
         <img id="hat2" src="https://pancopa.github.io/camera/assets/monadoni/thumbnail.png"/>
         <img id="glasses1" src="https://pancopa.github.io/camera/assets/glasses/thumbnail.png"/>
         <img id="glasses2" src="https://pancopa.github.io/camera/assets/glasses2/thumbnail.png"/>
         <img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
+        <img id="nini" src="./assets/nini/thumbnail.jpeg"/>
       </div>
       <a-scene mindar-face embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-assets>
@@ -88,8 +90,9 @@
           <a-asset-item id="glassesModel2" src="https://pancopa.github.io/camera/assets/glasses2/monad-glass.gltf"></a-asset-item>
           <a-asset-item id="hatModel" src="https://pancopa.github.io/camera/assets/hat/monad-hat.gltf"></a-asset-item>
           <a-asset-item id="hatModel2" src="https://pancopa.github.io/camera/assets/monadoni/monadoni.gltf"></a-asset-item>
-          <a-asset-item id="capModel" src="./assets/cap/monad-cap.gltf"></a-asset-item>
+          <a-asset-item id="capModel" src="https://pancopa.github.io/camera/assets/cap/monad-cap.gltf"></a-asset-item>
           <a-asset-item id="earringModel" src="https://pancopa.github.io/camera/assets/earring/monad-earring.gltf"></a-asset-item>
+          <a-asset-item id="niniModel" src="https://pancopa.github.io/camera/assets/nini/monad-nini.gltf"></a-asset-item>
         </a-assets>
         <a-camera active="false" position="0 0 0"></a-camera>
 	<!-- head occluder -->
@@ -116,6 +119,9 @@
         </a-entity>
         <a-entity mindar-face-target="anchorIndex: 356">
 	        <a-gltf-model rotation="0.1 -30 0" position="0 -0.3 -0.3" scale="4 4 4" src="#earringModel" class="earring-entity" visible="false"></a-gltf-model>
+        </a-entity>
+        <a-entity mindar-face-target="anchorIndex: 200">
+	        <a-gltf-model rotation="0 -180 0" position="0 -0.2 0.1" scale="1.2 1.2 1.2" src="#niniModel" class="nini-entity" visible="false" animation-mixer></a-gltf-model>
         </a-entity>
       </a-scene>
     </div>
