@@ -49,29 +49,42 @@
           switchCamera();
         });
 
-        function switchCamera() {
+        async function switchCamera() {
           const mindarScene = document.querySelector("a-scene");
+          const videoElement = document.querySelector("video");
+
+          if (videoElement) {
+            mindarScene.components['mindar-face'].stop();
+            videoElement.pause();
+            videoElement.srcObject.getTracks().forEach(track => track.stop());
+          }
+
           const constraints = {
-            audio: false,
             video: {
               facingMode: currentFacingMode
             }
           };
-          navigator.mediaDevices.getUserMedia(constraints)
-            .then((stream) => {
-              const videoTracks = stream.getVideoTracks();
-              mindarScene.components["mindar-face"].stop();
-              const video = mindarScene.querySelector("video");
-              if (video) {
-                video.srcObject = stream;
-              } else {
-                mindarScene.setAttribute("mindar-face", { videoElement: stream });
-              }
-              mindarScene.components["mindar-face"].start();
-            })
-            .catch((err) => {
-              console.error("Error accessing the camera: ", err);
-            });
+
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            const videoTracks = stream.getVideoTracks();
+
+            if (videoElement) {
+              videoElement.srcObject = stream;
+              videoElement.play();
+            } else {
+              const newVideoElement = document.createElement("video");
+              newVideoElement.autoplay = true;
+              newVideoElement.muted = true;
+              newVideoElement.playsInline = true;
+              newVideoElement.srcObject = stream;
+              document.body.appendChild(newVideoElement);
+            }
+
+            mindarScene.components['mindar-face'].start();
+          } catch (error) {
+            console.error("Error accessing the camera: ", error);
+          }
         }
       });
     </script>
