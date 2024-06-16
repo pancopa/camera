@@ -47,9 +47,11 @@
 
         switchButton.addEventListener("click", () => {
           currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+          mindarScene.components['mindar-face'].el.setAttribute('mindar-face', 'facingMode', currentFacingMode);
           mindarScene.components['mindar-face'].stop();
-          mindarScene.setAttribute('mindar-face', `facingMode: ${currentFacingMode}`);
-          mindarScene.components['mindar-face'].start();
+          setTimeout(() => {
+            mindarScene.components['mindar-face'].start();
+          }, 500); // Wait for the camera to switch before restarting
         });
       });
     </script>
