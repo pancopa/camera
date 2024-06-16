@@ -42,17 +42,37 @@
         });
 
         const switchButton = document.querySelector("#switch-camera");
-        const mindarScene = document.querySelector("a-scene");
         let currentFacingMode = "user"; // start with the front camera
 
         switchButton.addEventListener("click", () => {
           currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
-          mindarScene.components['mindar-face'].el.setAttribute('mindar-face', 'facingMode', currentFacingMode);
-          mindarScene.components['mindar-face'].stop();
-          setTimeout(() => {
-            mindarScene.components['mindar-face'].start();
-          }, 500); // Wait for the camera to switch before restarting
+          switchCamera();
         });
+
+        function switchCamera() {
+          const mindarScene = document.querySelector("a-scene");
+          const constraints = {
+            audio: false,
+            video: {
+              facingMode: currentFacingMode
+            }
+          };
+          navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+              const videoTracks = stream.getVideoTracks();
+              mindarScene.components["mindar-face"].stop();
+              const video = mindarScene.querySelector("video");
+              if (video) {
+                video.srcObject = stream;
+              } else {
+                mindarScene.setAttribute("mindar-face", { videoElement: stream });
+              }
+              mindarScene.components["mindar-face"].start();
+            })
+            .catch((err) => {
+              console.error("Error accessing the camera: ", err);
+            });
+        }
       });
     </script>
     <style>
