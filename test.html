@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head prefix="og: https://ogp.me/ns#">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,50 +42,49 @@
           });
         });
 
-        const switchButton = document.querySelector("#switch-camera");
-        let currentFacingMode = "user"; // start with the front camera
+        let isFrontCamera = true;
+        let currentStream = null;
 
-        switchButton.addEventListener("click", () => {
-          currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
-          switchCamera();
-        });
+        const switchCameraButton = document.getElementById('camera-switch');
+        switchCameraButton.addEventListener('click', switchCamera);
 
-        async function switchCamera() {
-          const mindarScene = document.querySelector("a-scene");
-          const videoElement = document.querySelector("video");
+        function switchCamera() {
+          isFrontCamera = !isFrontCamera;
+          setCamera();
+        }
 
-          if (videoElement) {
-            mindarScene.components['mindar-face'].stop();
-            videoElement.pause();
-            videoElement.srcObject.getTracks().forEach(track => track.stop());
+        function stopCurrentStream() {
+          if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
           }
+        }
+
+        function setCamera() {
+          stopCurrentStream();
 
           const constraints = {
             video: {
-              facingMode: currentFacingMode
+              facingMode: isFrontCamera ? 'user' : 'environment'
             }
           };
 
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            const videoTracks = stream.getVideoTracks();
-
-            if (videoElement) {
-              videoElement.srcObject = stream;
-              videoElement.play();
-            } else {
-              const newVideoElement = document.createElement("video");
-              newVideoElement.autoplay = true;
-              newVideoElement.muted = true;
-              newVideoElement.playsInline = true;
-              newVideoElement.srcObject = stream;
-              document.body.appendChild(newVideoElement);
-            }
-
-            mindarScene.components['mindar-face'].start();
-          } catch (error) {
-            console.error("Error accessing the camera: ", error);
-          }
+          navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+              currentStream = stream;
+              const video = document.createElement('video');
+              video.srcObject = stream;
+              video.play();
+              const videoElement = document.querySelector('a-scene').camera.el.getObject3D('video');
+              if (videoElement) {
+                videoElement.srcObject = stream;
+              } else {
+                document.querySelector('a-scene').camera.el.setObject3D('video', video);
+              }
+            })
+            .catch(function(error) {
+              console.error('Error accessing the camera: ', error);
+            });
         }
       });
     </script>
@@ -116,9 +116,10 @@
       .options-panel img.selected {
         border-color: #200053;
       }
-      #switch-camera, #take-screenshot {
+      #camera-switch {
         position: absolute;
         bottom: 10px;
+        right: 10px;
         z-index: 1000;
         display: flex;
         justify-content: center;
@@ -130,9 +131,6 @@
         border: none;
         border-radius: 24px;
         cursor: pointer;
-      }
-      #switch-camera {
-        right: 10px;
       }
     </style>
   </head>
@@ -147,7 +145,7 @@
         <img id="earring" src="https://pancopa.github.io/camera/assets/earring/thumbnail.png"/>
         <img id="nini" src="./assets/nini/thumbnail.jpeg"/>
       </div>
-      <div id="switch-camera"><span class="material-symbols-outlined">flip_camera_ios</span></div>
+      <button id="camera-switch"><span class="material-symbols-outlined">flip_camera_ios</span></button>
       <a-scene mindar-face embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-assets>
           <a-asset-item id="headModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/sparkar/headOccluder.glb"></a-asset-item>
@@ -162,7 +160,7 @@
         <a-camera active="false" position="0 0 0"></a-camera>
         <!-- head occluder -->
         <a-entity mindar-face-target="anchorIndex: 168">
-          <a-gltf-model mindar-face-occluder position="0 -0.3 0.15" rotation="0 0 0" scale="0.065 0.065 0.065" src="#headModel"></a-gltf-model>
+          <a-gltf-model mindar-face-occluder position="0 -0.3 0.15"rotation="0 0 0" scale="0.065 0.065 0.065" src="#headModel"></a-gltf-model>
         </a-entity>
         <a-entity mindar-face-target="anchorIndex: 10">
           <a-gltf-model rotation="0 -90 0" position="0 -0.15 -0.7" scale="5 5 5" src="#hatModel" class="hat1-entity" visible="false"></a-gltf-model>
